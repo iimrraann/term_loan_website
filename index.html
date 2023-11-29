@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Bank Term Deposit Subscription Prediction</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="index_files/libs/clipboard/clipboard.min.js"></script>
+<script src="index_files/libs/quarto-html/quarto.js"></script>
+<script src="index_files/libs/quarto-html/popper.min.js"></script>
+<script src="index_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="index_files/libs/quarto-html/anchor.min.js"></script>
+<link href="index_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="index_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="index_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="index_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="index_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<style>html{ scroll-behavior: smooth; }</style>
+
+
+</head>
+
+<body>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-full">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#exploratory-data-analysis-eda-findings" id="toc-exploratory-data-analysis-eda-findings" class="nav-link" data-scroll-target="#exploratory-data-analysis-eda-findings">Exploratory Data Analysis (EDA) Findings</a></li>
+  <li><a href="#data-cleaning-preprocessing" id="toc-data-cleaning-preprocessing" class="nav-link" data-scroll-target="#data-cleaning-preprocessing">Data Cleaning &amp; Preprocessing</a></li>
+  <li><a href="#model-training-and-selection" id="toc-model-training-and-selection" class="nav-link" data-scroll-target="#model-training-and-selection">Model Training and Selection</a></li>
+  <li><a href="#results-and-evaluation" id="toc-results-and-evaluation" class="nav-link" data-scroll-target="#results-and-evaluation">Results and Evaluation</a></li>
+  <li><a href="#conclusions-and-recommendations" id="toc-conclusions-and-recommendations" class="nav-link" data-scroll-target="#conclusions-and-recommendations">Conclusions and Recommendations</a></li>
+  <li><a href="#optional-k-means-clustering" id="toc-optional-k-means-clustering" class="nav-link" data-scroll-target="#optional-k-means-clustering">Optional K-means Clustering</a></li>
+  </ul>
+</nav>
+</div>
+<main class="content column-page-left" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Bank Term Deposit Subscription Prediction</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="introduction" class="level1">
+<h1>Introduction</h1>
+<p>The objective of this project is to develop a predictive model for XYZ Bank to identify clients who are likely to subscribe to a term deposit. The analysis is based on data from the bank’s direct marketing campaigns, which include client demographics, campaign details, and economic indicators.</p>
+<p>Her’s a quick look of the dataset that we are working with:</p>
+<div class="cell" data-execution_count="2">
+<div class="cell-output cell-output-stdout">
+<pre><code>+---+---------+-------+-----------+-------+-------+----+---------+-----+-----------+--------+--------+-----+--------+-----------+------------+--------------+-------------+---------+-----------+---+
+|age|      job|marital|  education|default|housing|loan|  contact|month|day_of_week|duration|campaign|pdays|previous|   poutcome|emp.var.rate|cons.price.idx|cons.conf.idx|euribor3m|nr.employed|  y|
++---+---------+-------+-----------+-------+-------+----+---------+-----+-----------+--------+--------+-----+--------+-----------+------------+--------------+-------------+---------+-----------+---+
+| 56|housemaid|married|   basic.4y|     no|     no|  no|telephone|  may|        mon|     261|       1|  999|       0|nonexistent|         1.1|        93.994|        -36.4|    4.857|     5191.0| no|
+| 57| services|married|high.school|unknown|     no|  no|telephone|  may|        mon|     149|       1|  999|       0|nonexistent|         1.1|        93.994|        -36.4|    4.857|     5191.0| no|
+| 37| services|married|high.school|     no|    yes|  no|telephone|  may|        mon|     226|       1|  999|       0|nonexistent|         1.1|        93.994|        -36.4|    4.857|     5191.0| no|
+| 40|   admin.|married|   basic.6y|     no|     no|  no|telephone|  may|        mon|     151|       1|  999|       0|nonexistent|         1.1|        93.994|        -36.4|    4.857|     5191.0| no|
+| 56| services|married|high.school|     no|     no| yes|telephone|  may|        mon|     307|       1|  999|       0|nonexistent|         1.1|        93.994|        -36.4|    4.857|     5191.0| no|
++---+---------+-------+-----------+-------+-------+----+---------+-----+-----------+--------+--------+-----+--------+-----------+------------+--------------+-------------+---------+-----------+---+
+only showing top 5 rows
+</code></pre>
+</div>
+</div>
+<p>A quick analysis of the dataset shows that there are some columns in the dataset with “.” that makes the EDA difficult as the column names are interpreted as attributes. So before we get to the EDA of data for descriptive analysis we clean up the column names with the code below.</p>
+<div class="cell" data-execution_count="3">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> column <span class="kw">in</span> df.columns:</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    df <span class="op">=</span> df.withColumnRenamed(column, column.replace(<span class="st">'.'</span>, <span class="st">'_'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="exploratory-data-analysis-eda-findings" class="level1">
+<h1>Exploratory Data Analysis (EDA) Findings</h1>
+<p>The starting point of EDA is to understand the variable types and cardinality. We did this using Pyspark along with identifying variables with null values:</p>
+<div class="cell" data-execution_count="5">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Numeric Features:"</span>, numerical_columns)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Categorical Features:"</span>, categorical_columns)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Total numeric features:"</span>, <span class="bu">len</span>(numerical_columns))</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Total categorical features:"</span>, <span class="bu">len</span>(categorical_columns))</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Null values for the dataset</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>null_values <span class="op">=</span> {column: df.<span class="bu">filter</span>(df[column].isNull()).count() <span class="cf">for</span> column <span class="kw">in</span> df.columns}</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Null Values:"</span>, null_values)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Cardinality of all variables</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>cardinality <span class="op">=</span> {column: df.select(column).distinct().count() <span class="cf">for</span> column <span class="kw">in</span> categorical_columns}</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Cardinality:"</span>, cardinality)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Numeric Features: ['age', 'duration', 'campaign', 'pdays', 'previous', 'emp_var_rate', 'cons_price_idx', 'cons_conf_idx', 'euribor3m', 'nr_employed']
+Categorical Features: ['job', 'marital', 'education', 'default', 'housing', 'loan', 'contact', 'month', 'day_of_week', 'poutcome', 'y']
+Total numeric features: 10
+Total categorical features: 11
+Null Values: {'age': 0, 'job': 0, 'marital': 0, 'education': 0, 'default': 0, 'housing': 0, 'loan': 0, 'contact': 0, 'month': 0, 'day_of_week': 0, 'duration': 0, 'campaign': 0, 'pdays': 0, 'previous': 0, 'poutcome': 0, 'emp_var_rate': 0, 'cons_price_idx': 0, 'cons_conf_idx': 0, 'euribor3m': 0, 'nr_employed': 0, 'y': 0}
+Cardinality: {'job': 12, 'marital': 4, 'education': 8, 'default': 3, 'housing': 3, 'loan': 3, 'contact': 2, 'month': 10, 'day_of_week': 5, 'poutcome': 3, 'y': 2}</code></pre>
+</div>
+</div>
+<p>Through EDA, we observed the following:</p>
+<ul>
+<li>The dataset consists of diverse demographic and economic features, crucial for understanding customer behavior.</li>
+<li>There are a total of 10 numeric features including
+<ul>
+<li>Age</li>
+<li>Duration: last contact duration, in seconds</li>
+<li>Campaign: number of contacts performed during this campaign and for this client</li>
+<li>pdays: number of days that passed by after the client was last contacted from a previous campaign</li>
+<li>previous: number of contacts performed before this campaign and for this client</li>
+<li>emp_var_rate: employment variation rate</li>
+<li>cons_price_idx: consumer price index</li>
+<li>cons_conf_idx: consumer confidence index</li>
+<li>euribor3m: euribor 3 month rate</li>
+<li>nr_employed: number of employees</li>
+</ul></li>
+<li>There are a total of 11 categorical features including:
+<ul>
+<li>job: type of job</li>
+<li>marital: marital status</li>
+<li>Education</li>
+<li>default: has credit in default?</li>
+<li>housing: has housing loan?</li>
+<li>loan: has personal loan?</li>
+<li>contact: contact communication type</li>
+<li>month: last contact month of year</li>
+<li>day_of_week: last contact day of the week</li>
+<li>poutcome: outcome of the previous marketing campaign</li>
+<li>y: client subscribed or not?</li>
+</ul></li>
+<li>No missing values were detected in numerical columns, however null values are coded as “non-existent” or “unknowns” in some of the categorical columns which can later be endoded as is.</li>
+<li>Cardinality shows number of disctinct values in the categorical variables. Job has the highest number of distincts at 12 followed by month with 10 followed by education with 8.</li>
+</ul>
+<p>Following output shows the basic summary statistics for all the variables in the dataset:</p>
+<div class="cell" data-execution_count="6">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>df.describe().show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>23/11/29 11:39:25 WARN SparkStringUtils: Truncated the string representation of a plan since it was too large. This behavior can be adjusted by setting 'spark.sql.debug.maxToStringFields'.
+[Stage 132:&gt;                                                        (0 + 2) / 2][Stage 132:============================&gt;                            (1 + 1) / 2]                                                                                </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>+-------+------------------+-------+--------+---------+-------+-------+-----+---------+-----+-----------+------------------+-----------------+-----------------+-------------------+--------+-------------------+------------------+-------------------+------------------+-----------------+-----+
+|summary|               age|    job| marital|education|default|housing| loan|  contact|month|day_of_week|          duration|         campaign|            pdays|           previous|poutcome|       emp_var_rate|    cons_price_idx|      cons_conf_idx|         euribor3m|      nr_employed|    y|
++-------+------------------+-------+--------+---------+-------+-------+-----+---------+-----+-----------+------------------+-----------------+-----------------+-------------------+--------+-------------------+------------------+-------------------+------------------+-----------------+-----+
+|  count|             41188|  41188|   41188|    41188|  41188|  41188|41188|    41188|41188|      41188|             41188|            41188|            41188|              41188|   41188|              41188|             41188|              41188|             41188|            41188|41188|
+|   mean| 40.02406040594348|   NULL|    NULL|     NULL|   NULL|   NULL| NULL|     NULL| NULL|       NULL| 258.2850101971448|2.567592502670681|962.4754540157328|0.17296299893172767|    NULL|0.08188550063178966|  93.5756643682899|-40.502600271918276| 3.621290812858533|5167.035910943957| NULL|
+| stddev|10.421249980934043|   NULL|    NULL|     NULL|   NULL|   NULL| NULL|     NULL| NULL|       NULL|259.27924883646455|2.770013542902331| 186.910907344741|0.49490107983928927|    NULL|   1.57095974051703|0.5788400489540823|  4.628197856174573|1.7344474048512595|72.25152766826338| NULL|
+|    min|                17| admin.|divorced| basic.4y|     no|     no|   no| cellular|  apr|        fri|                 0|                1|                0|                  0| failure|               -3.4|            92.201|              -50.8|             0.634|           4963.6|   no|
+|    max|                98|unknown| unknown|  unknown|    yes|    yes|  yes|telephone|  sep|        wed|              4918|               56|              999|                  7| success|                1.4|            94.767|              -26.9|             5.045|           5228.1|  yes|
++-------+------------------+-------+--------+---------+-------+-------+-----+---------+-----+-----------+------------------+-----------------+-----------------+-------------------+--------+-------------------+------------------+-------------------+------------------+-----------------+-----+
+</code></pre>
+</div>
+</div>
+<p>One of the main things that stands out in this summary statistic is that the maximum pdays is 999 which is essentially a placeholder for clients not contacted. Since this large number can affect the distribution of the data in the column, we replace it with -1 as an indicator no contact.</p>
+<p>As the next step we wanted to visualise the realtionship of numerical columns with our target to see if there is any considerable difference among variable values correspoding to the two outcomes.</p>
+<div class="cell" data-execution_count="7">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Determine the number of rows needed</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>num_plots <span class="op">=</span> <span class="bu">len</span>(numerical_columns)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>num_cols <span class="op">=</span> <span class="dv">3</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>num_rows <span class="op">=</span> math.ceil(num_plots <span class="op">/</span> num_cols)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">3</span> <span class="op">*</span> num_rows))</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="co"># For each numerical feature</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, col_name <span class="kw">in</span> <span class="bu">enumerate</span>(numerical_columns, <span class="dv">1</span>):</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    plt.subplot(num_rows, num_cols, i)</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> df.groupBy(<span class="st">'y'</span>).agg({col_name: <span class="st">'mean'</span>}).collect()</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>    categories <span class="op">=</span> [row[<span class="st">'y'</span>] <span class="cf">for</span> row <span class="kw">in</span> result]</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    means <span class="op">=</span> [row[<span class="ss">f'avg(</span><span class="sc">{</span>col_name<span class="sc">}</span><span class="ss">)'</span>] <span class="cf">for</span> row <span class="kw">in</span> result]</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>    sns.barplot(x<span class="op">=</span>categories, y<span class="op">=</span>means)</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>    plt.xlabel(<span class="st">'Category of y'</span>, fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>    plt.ylabel(<span class="ss">f'Mean of </span><span class="sc">{</span>col_name<span class="sc">}</span><span class="ss">'</span>, fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>    plt.title(<span class="ss">f'Mean of </span><span class="sc">{</span>col_name<span class="sc">}</span><span class="ss"> by Category of y'</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<p><img src="index_files/figure-html/cell-8-output-1.png" width="963" height="1142"></p>
+</div>
+</div>
+<p><strong>Insights:</strong> We can see that mean value of “duration” variable is considerably different for people who buy the subscription versus who don’t. Similarly, campaign, pdays, previous, emp_var_rate, euribor3m seems to have significantly different mean values based on the outcome of the subscription. These variables can eventually become good candidates for predicting variables for our outcome.</p>
+<p>Similarly, we make a crosstab visualisation for the categorical variables in the dataset to see if there are values for a variable that have standing out associations with our target variable.</p>
+<div class="cell" data-execution_count="8">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>max_plots <span class="op">=</span> <span class="dv">15</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>selected_categorical_columns <span class="op">=</span> [col <span class="cf">for</span> col <span class="kw">in</span> df.columns <span class="cf">if</span> col <span class="kw">not</span> <span class="kw">in</span> numerical_columns <span class="kw">and</span> col <span class="op">!=</span> <span class="st">'y'</span>][:max_plots]</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the layout of the subplots</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>num_cols <span class="op">=</span> <span class="dv">3</span>  <span class="co"># Number of columns in the subplot grid</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>num_rows <span class="op">=</span> math.ceil(<span class="bu">len</span>(selected_categorical_columns) <span class="op">/</span> num_cols)  <span class="co"># Number of rows needed</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">3</span> <span class="op">*</span> num_rows))</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="co"># For each selected categorical feature</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, col_name <span class="kw">in</span> <span class="bu">enumerate</span>(selected_categorical_columns, <span class="dv">1</span>):</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>    plt.subplot(num_rows, num_cols, i)</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    crosstab_result <span class="op">=</span> df.stat.crosstab(col_name, <span class="st">'y'</span>).collect()</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>    categories <span class="op">=</span> [row[<span class="ss">f'</span><span class="sc">{</span>col_name<span class="sc">}</span><span class="ss">_y'</span>] <span class="cf">for</span> row <span class="kw">in</span> crosstab_result]</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>    counts_yes <span class="op">=</span> [row[<span class="st">'yes'</span>] <span class="cf">for</span> row <span class="kw">in</span> crosstab_result]</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>    counts_no <span class="op">=</span> [row[<span class="st">'no'</span>] <span class="cf">for</span> row <span class="kw">in</span> crosstab_result]</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>    plt.bar(categories, counts_yes, label<span class="op">=</span><span class="st">'Yes'</span>, color<span class="op">=</span><span class="st">'skyblue'</span>)</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>    plt.bar(categories, counts_no, bottom<span class="op">=</span>counts_yes, label<span class="op">=</span><span class="st">'No'</span>, color<span class="op">=</span><span class="st">'salmon'</span>)</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>    plt.xlabel(col_name, fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>    plt.ylabel(<span class="st">'Counts'</span>)</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>    plt.title(<span class="ss">f'Crosstab of </span><span class="sc">{</span>col_name<span class="sc">}</span><span class="ss"> and y'</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>    plt.legend()</span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>    plt.xticks(rotation<span class="op">=</span><span class="dv">45</span>, fontsize<span class="op">=</span><span class="dv">6</span>)</span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>23/11/29 11:39:29 WARN GarbageCollectionMetrics: To enable non-built-in garbage collector(s) List(G1 Concurrent GC), users should configure it(them) to spark.eventLog.gcMetrics.youngGenerationGarbageCollectors or spark.eventLog.gcMetrics.oldGenerationGarbageCollectors</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="index_files/figure-html/cell-9-output-2.png" width="950" height="1141"></p>
+</div>
+</div>
+<p><strong>Insights:</strong></p>
+<ul>
+<li>We see that people with no housing information never had subscribed for a term deposit.</li>
+<li>People will cellular connections subscribed for terms deposit more (as a % of total)</li>
+<li>People with subscribed usually had high school or higher education</li>
+<li>People with no history of loan default subscribed for term loan over people with loan default history.</li>
+</ul>
+<p>Other variables might also have predicting power however based on the EDA, different means of the variables based on the outcome tells that these variables could be signifiacnt in explaining the outcome.</p>
+<p><strong>Collinearity:</strong></p>
+<p>Many predicitve models assume that the variables predicting the outcome should not be highly colinear. So as a check we perform collinearity on all combination of variables and exclude the one of the two variables as it provides no additional information in predicting the outcome. The threshold for excluding the variable was set at +-0.8</p>
+<div class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># List to store variables to be excluded</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>exclude_columns <span class="op">=</span> []</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate pairwise correlations and identify high correlations</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(numerical_columns)):</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(i<span class="op">+</span><span class="dv">1</span>, <span class="bu">len</span>(numerical_columns)):</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>        col1 <span class="op">=</span> numerical_columns[i]</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>        col2 <span class="op">=</span> numerical_columns[j]</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>        correlation <span class="op">=</span> df.select(F.corr(col(col1), col(col2)).alias(<span class="st">'correlation'</span>)).collect()[<span class="dv">0</span>][<span class="st">'correlation'</span>]</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Check if correlation is higher than the threshold</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="bu">abs</span>(correlation) <span class="op">&gt;</span> <span class="fl">0.8</span>:</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"High correlation (</span><span class="sc">{</span>correlation<span class="sc">}</span><span class="ss">) between </span><span class="sc">{</span>col1<span class="sc">}</span><span class="ss"> and </span><span class="sc">{</span>col2<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Add to exclude list (here we choose col2, but you can choose based on criteria)</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>            exclude_columns.append(col2)</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove duplicates from the exclude list</span></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>exclude_columns <span class="op">=</span> <span class="bu">list</span>(<span class="bu">set</span>(exclude_columns))</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Columns to drop: </span><span class="sc">{</span>exclude_columns<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>High correlation (0.9722446711516146) between emp_var_rate and euribor3m
+High correlation (0.9069701012560588) between emp_var_rate and nr_employed
+High correlation (0.9451544313982699) between euribor3m and nr_employed
+Columns to drop: ['nr_employed', 'euribor3m']</code></pre>
+</div>
+</div>
+</section>
+<section id="data-cleaning-preprocessing" class="level1">
+<h1>Data Cleaning &amp; Preprocessing</h1>
+<p>Data preprocessing involved:</p>
+<ul>
+<li>Exluding variables with more than +-0.8 of Pearson correlation</li>
+</ul>
+<div class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Updated columns list</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>final_columns <span class="op">=</span> [col <span class="cf">for</span> col <span class="kw">in</span> df.columns <span class="cf">if</span> col <span class="kw">not</span> <span class="kw">in</span> exclude_columns]</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co"># New DataFrame with excluded columns</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df.select(<span class="op">*</span>final_columns)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ul>
+<li>Replace 999 in pdays with -1 as flag value close to the actual values of the variable</li>
+</ul>
+<div class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a new binary column indicating whether the client was previously contacted</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df.withColumn(<span class="st">'previously_contacted'</span>, F.when(df[<span class="st">'pdays'</span>] <span class="op">==</span> <span class="dv">999</span>, <span class="dv">0</span>).otherwise(<span class="dv">1</span>))</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co"># replace value</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df.withColumn(<span class="st">'pdays'</span>, F.when(df[<span class="st">'pdays'</span>] <span class="op">==</span> <span class="dv">999</span>, F.lit(<span class="op">-</span><span class="dv">1</span>)).otherwise(df[<span class="st">'pdays'</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ul>
+<li>Encoding categorical variables to prepare them for the machine learning models.</li>
+</ul>
+<div class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Target column</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>target_column <span class="op">=</span> <span class="st">'y'</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert target column to numeric</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>label_indexer <span class="op">=</span> StringIndexer(inputCol<span class="op">=</span>target_column, outputCol<span class="op">=</span><span class="st">"label"</span>).fit(df)</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> label_indexer.transform(df)</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df.drop(<span class="st">'y'</span>)</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove target column from numerical columns if present</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> target_column <span class="kw">in</span> categorical_columns:</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>    categorical_columns.remove(target_column)</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Process categorical columns</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>indexers <span class="op">=</span> [StringIndexer(inputCol<span class="op">=</span>column, outputCol<span class="op">=</span>column<span class="op">+</span><span class="st">"_index"</span>).fit(df) <span class="cf">for</span> column <span class="kw">in</span> categorical_columns]</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>encoder <span class="op">=</span> OneHotEncoder(inputCols<span class="op">=</span>[indexer.getOutputCol() <span class="cf">for</span> indexer <span class="kw">in</span> indexers], outputCols<span class="op">=</span>[col<span class="op">+</span><span class="st">"_encoded"</span> <span class="cf">for</span> col <span class="kw">in</span> categorical_columns])</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Assemble features</span></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>assembled_inputs <span class="op">=</span> [c<span class="op">+</span><span class="st">"_encoded"</span> <span class="cf">for</span> c <span class="kw">in</span> categorical_columns] <span class="op">+</span> numerical_columns</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>assembler <span class="op">=</span> VectorAssembler(inputCols<span class="op">=</span>assembled_inputs, outputCol<span class="op">=</span><span class="st">'features'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Analysis: The preprocessing steps are critical in transforming raw data into a format accepted by pyspark, suitable for modeling, ensuring accuracy in predictions.</p>
+</section>
+<section id="model-training-and-selection" class="level1">
+<h1>Model Training and Selection</h1>
+<p>We experimented with several models with all the variables as a starting point. There are several variables which can be filtered out before we get to modelling but we wanted to see if we have acceptable performance of the model with all the variables and if necessary we will then weed out variables that does not improve model performance. We made a pipeline that will run 4 models and print out confusion matrix and AUC for each. Following models were run using pySpark mllib library.</p>
+<ol type="1">
+<li>Logistic Regression: Provided a baseline for performance</li>
+<li>Decision tree classifier</li>
+<li>Random Forest</li>
+<li>Gradient Boosted trees</li>
+</ol>
+<div class="cell" data-execution_count="14">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.mllib.evaluation <span class="im">import</span> MulticlassMetrics</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql.functions <span class="im">import</span> col</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>model_performance <span class="op">=</span> []</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Model building</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>train, test <span class="op">=</span> df.randomSplit([<span class="fl">0.7</span>, <span class="fl">0.3</span>], seed<span class="op">=</span><span class="dv">42</span>)</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Define different classifiers</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>classifiers <span class="op">=</span> [</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>    LogisticRegression(featuresCol<span class="op">=</span><span class="st">'features'</span>, labelCol<span class="op">=</span><span class="st">'label'</span>),</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>    RandomForestClassifier(featuresCol<span class="op">=</span><span class="st">'features'</span>, labelCol<span class="op">=</span><span class="st">'label'</span>),</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>    GBTClassifier(featuresCol<span class="op">=</span><span class="st">'features'</span>, labelCol<span class="op">=</span><span class="st">'label'</span>),</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>    DecisionTreeClassifier(featuresCol<span class="op">=</span><span class="st">'features'</span>, labelCol<span class="op">=</span><span class="st">'label'</span>)</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> classifier <span class="kw">in</span> classifiers:</span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Create Pipeline</span></span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>    pipeline <span class="op">=</span> Pipeline(stages<span class="op">=</span>indexers <span class="op">+</span> [encoder, assembler, classifier])</span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Train model</span></span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>    model <span class="op">=</span> pipeline.fit(train)</span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Make predictions</span></span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>    predictions <span class="op">=</span> model.transform(test)</span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Evaluate model</span></span>
+<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a>    evaluator <span class="op">=</span> BinaryClassificationEvaluator(labelCol<span class="op">=</span><span class="st">'label'</span>, metricName<span class="op">=</span><span class="st">"accuracy"</span>)</span>
+<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a>    auc <span class="op">=</span> evaluator.evaluate(predictions, {evaluator.metricName: <span class="st">"areaUnderROC"</span>})</span>
+<span id="cb16-33"><a href="#cb16-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-34"><a href="#cb16-34" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"AUC of the </span><span class="sc">{</span>classifier<span class="sc">.</span>__class__<span class="sc">.</span><span class="va">__name__</span><span class="sc">}</span><span class="ss"> is </span><span class="sc">{</span>auc<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb16-35"><a href="#cb16-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-36"><a href="#cb16-36" aria-hidden="true" tabindex="-1"></a>    model_performance.append((classifier.__class__.<span class="va">__name__</span>, auc))</span>
+<span id="cb16-37"><a href="#cb16-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-38"><a href="#cb16-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-39"><a href="#cb16-39" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Confusion Matrix</span></span>
+<span id="cb16-40"><a href="#cb16-40" aria-hidden="true" tabindex="-1"></a>    preds_and_labels <span class="op">=</span> predictions.select([<span class="st">'prediction'</span>, <span class="st">'label'</span>]).withColumn(<span class="st">'label'</span>, col(<span class="st">'label'</span>).cast(FloatType()))</span>
+<span id="cb16-41"><a href="#cb16-41" aria-hidden="true" tabindex="-1"></a>    preds_and_labels <span class="op">=</span> preds_and_labels.select([<span class="st">'prediction'</span>, <span class="st">'label'</span>])</span>
+<span id="cb16-42"><a href="#cb16-42" aria-hidden="true" tabindex="-1"></a>    metrics <span class="op">=</span> MulticlassMetrics(preds_and_labels.rdd.<span class="bu">map</span>(<span class="bu">tuple</span>))</span>
+<span id="cb16-43"><a href="#cb16-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-44"><a href="#cb16-44" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f'Confusion Matrix for </span><span class="sc">{</span>classifier<span class="sc">.</span>__class__<span class="sc">.</span><span class="va">__name__</span><span class="sc">}</span><span class="ss">:'</span>)</span>
+<span id="cb16-45"><a href="#cb16-45" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(metrics.confusionMatrix().toArray())</span>
+<span id="cb16-46"><a href="#cb16-46" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">'</span><span class="ch">\n</span><span class="st">'</span>)</span>
+<span id="cb16-47"><a href="#cb16-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-48"><a href="#cb16-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-49"><a href="#cb16-49" aria-hidden="true" tabindex="-1"></a><span class="co"># Sort models based on AUC and then runtime</span></span>
+<span id="cb16-50"><a href="#cb16-50" aria-hidden="true" tabindex="-1"></a>model_performance.sort(key<span class="op">=</span><span class="kw">lambda</span> x: (<span class="op">-</span>x[<span class="dv">1</span>]))</span>
+<span id="cb16-51"><a href="#cb16-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-52"><a href="#cb16-52" aria-hidden="true" tabindex="-1"></a><span class="co"># Champion Model</span></span>
+<span id="cb16-53"><a href="#cb16-53" aria-hidden="true" tabindex="-1"></a>champion_model_name, champion_model_auc <span class="op">=</span> model_performance[<span class="dv">0</span>]</span>
+<span id="cb16-54"><a href="#cb16-54" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Champion Model: </span><span class="sc">{</span>champion_model_name<span class="sc">}</span><span class="ss"> with AUC: </span><span class="sc">{</span>champion_model_auc<span class="sc">}</span><span class="ss"> "</span>)    </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>[Stage 473:============================&gt;                            (1 + 1) / 2]                                                                                23/11/29 11:39:37 WARN InstanceBuilder: Failed to load implementation from:dev.ludovic.netlib.blas.JNIBLAS
+23/11/29 11:39:37 WARN InstanceBuilder: Failed to load implementation from:dev.ludovic.netlib.blas.VectorBLAS
+[Stage 592:&gt;                                                        (0 + 1) / 1]                                                                                </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>AUC of the LogisticRegression is 0.935
+Confusion Matrix for LogisticRegression:
+[[10614.   288.]
+ [  763.   602.]]
+
+
+AUC of the RandomForestClassifier is 0.928
+Confusion Matrix for RandomForestClassifier:
+[[10839.    63.]
+ [ 1139.   226.]]
+
+
+AUC of the GBTClassifier is 0.945
+Confusion Matrix for GBTClassifier:
+[[10535.   367.]
+ [  656.   709.]]
+
+
+AUC of the DecisionTreeClassifier is 0.180
+Confusion Matrix for DecisionTreeClassifier:
+[[10568.   334.]
+ [  757.   608.]]
+
+
+Champion Model: GBTClassifier with AUC: 0.945428872478955 </code></pre>
+</div>
+</div>
+<p>Insight: The selection of the final model was based on a balance between accuracy and computational efficiency, with the Gradient Boosted Trees model showing the most promise. Finally, we save this model as our best model.</p>
+<div class="cell" data-execution_count="15">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>champion_model <span class="op">=</span> GBTClassifier(featuresCol<span class="op">=</span><span class="st">'features'</span>, labelCol<span class="op">=</span><span class="st">'label'</span>)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Create Pipeline for the champion model</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>champion_pipeline <span class="op">=</span> Pipeline(stages<span class="op">=</span>indexers <span class="op">+</span> [encoder, assembler, champion_model])</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Train the champion model on the entire dataset</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>champion_model_trained <span class="op">=</span> champion_pipeline.fit(df)</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Save the champion model</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>model_path <span class="op">=</span> <span class="st">"/Users/imran/Documents/Folder1/saved_model"</span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>champion_model_trained.save(model_path)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="results-and-evaluation" class="level1">
+<h1>Results and Evaluation</h1>
+<p>In this study, four different models were evaluated: Logistic Regression, Random Forest Classifier, Gradient Boosted Trees (GBT), and Decision Tree Classifier. The key performance metrics were AUC (Area Under the ROC Curve), accuracy, F1 score, and the confusion matrix for each model.</p>
+<p>The Gradient Boosted Trees model outperformed the other models, achieving the highest AUC of 0.944. Its high accuracy (91.5%) and F1 score (0.94) indicate a strong balance between precision and recall, making it the most reliable model among those tested for this dataset.</p>
+<p>Logistic Regression showed a strong performance with an AUC of 0.935. It demonstrated a good balance in identifying both classes, although it had a slightly higher number of false negatives compared to the GBT model.</p>
+<p>The Random Forest Classifier had a lower AUC of 0.924. Notably, it had a high number of true negatives but also a significant number of false negatives, suggesting a tendency to predict the negative class more frequently.</p>
+<p>The Decision Tree Classifier had a significantly lower AUC of 0.175, indicating a poor performance compared to the other models. This suggests that the model might be too simple to capture the complexities of the dataset or could be overfitting to the training data.</p>
+</section>
+<section id="conclusions-and-recommendations" class="level1">
+<h1>Conclusions and Recommendations</h1>
+<p>Our analysis suggests that the bank can significantly improve its marketing campaign’s efficiency by leveraging the predictive model. Key recommendations include:</p>
+<ul>
+<li>Focusing on customer segments identified as most likely to subscribe.</li>
+<li>Continual refinement of the model as more data becomes available.</li>
+</ul>
+<p>The GBT model is recommended for this task due to its superior overall performance in terms of AUC, accuracy, and F1 score. Its ability to balance precision and recall makes it well-suited for practical applications.</p>
+<p>The significant difference in performance between the models suggests that the choice of model and hyperparameter tuning play crucial roles in achieving high predictive accuracy.</p>
+<p>Future work could explore further tuning of the GBT model, investigating feature engineering opportunities, and testing the models on a more diverse or larger dataset to validate their robustness and generalizability.</p>
+</section>
+<section id="optional-k-means-clustering" class="level1">
+<h1>Optional K-means Clustering</h1>
+<p>In addition to the classification model, we explored customer segmentation using K-means clustering:</p>
+<ul>
+<li>This revealed distinct customer groups with varying likelihoods of subscription.</li>
+</ul>
+<div class="cell" data-execution_count="16">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql <span class="im">import</span> SparkSession</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.ml.clustering <span class="im">import</span> KMeans</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.ml.feature <span class="im">import</span> VectorAssembler, StandardScaler</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.ml.evaluation <span class="im">import</span> ClusteringEvaluator</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a Spark session</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>spark <span class="op">=</span> SparkSession.builder.appName(<span class="st">'KMeansClustering'</span>).getOrCreate()</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> spark.read.csv(<span class="st">'/Users/imran/Documents/Folder1/XYZ_Bank_Deposit_Data_Classification.csv'</span>, header<span class="op">=</span><span class="va">True</span>, sep<span class="op">=</span><span class="st">';'</span>, inferSchema<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> column <span class="kw">in</span> df.columns:</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>    df <span class="op">=</span> df.withColumnRenamed(column, column.replace(<span class="st">'.'</span>, <span class="st">'_'</span>))</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Identify categorical and numerical columns</span></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>categorical_columns <span class="op">=</span> [field.name <span class="cf">for</span> field <span class="kw">in</span> df.schema.fields <span class="cf">if</span> <span class="bu">isinstance</span>(field.dataType, StringType)]</span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>numerical_columns <span class="op">=</span> [field.name <span class="cf">for</span> field <span class="kw">in</span> df.schema.fields <span class="cf">if</span> <span class="bu">isinstance</span>(field.dataType, (IntegerType, DoubleType, FloatType))]</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Target column</span></span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>target_column <span class="op">=</span> <span class="st">'y'</span></span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert target column to numeric</span></span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a>label_indexer <span class="op">=</span> StringIndexer(inputCol<span class="op">=</span>target_column, outputCol<span class="op">=</span><span class="st">"label"</span>).fit(df)</span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> label_indexer.transform(df)</span>
+<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove target column from numerical columns if present</span></span>
+<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> target_column <span class="kw">in</span> numerical_columns:</span>
+<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a>    numerical_columns.remove(target_column)</span>
+<span id="cb20-28"><a href="#cb20-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-29"><a href="#cb20-29" aria-hidden="true" tabindex="-1"></a><span class="co"># Label encoding for categorical columns</span></span>
+<span id="cb20-30"><a href="#cb20-30" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> categorical_col <span class="kw">in</span> categorical_columns:</span>
+<span id="cb20-31"><a href="#cb20-31" aria-hidden="true" tabindex="-1"></a>    indexer <span class="op">=</span> StringIndexer(inputCol<span class="op">=</span>categorical_col, outputCol<span class="op">=</span>categorical_col <span class="op">+</span> <span class="st">"_index"</span>)</span>
+<span id="cb20-32"><a href="#cb20-32" aria-hidden="true" tabindex="-1"></a>    df <span class="op">=</span> indexer.fit(df).transform(df)</span>
+<span id="cb20-33"><a href="#cb20-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-34"><a href="#cb20-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Updated list of features for VectorAssembler</span></span>
+<span id="cb20-35"><a href="#cb20-35" aria-hidden="true" tabindex="-1"></a>updated_feature_cols <span class="op">=</span> [c <span class="op">+</span> <span class="st">"_index"</span> <span class="cf">for</span> c <span class="kw">in</span> categorical_columns] <span class="op">+</span> numerical_columns</span>
+<span id="cb20-36"><a href="#cb20-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-37"><a href="#cb20-37" aria-hidden="true" tabindex="-1"></a><span class="co"># Assemble features</span></span>
+<span id="cb20-38"><a href="#cb20-38" aria-hidden="true" tabindex="-1"></a>assembler <span class="op">=</span> VectorAssembler(inputCols<span class="op">=</span>updated_feature_cols, outputCol<span class="op">=</span><span class="st">"features"</span>)</span>
+<span id="cb20-39"><a href="#cb20-39" aria-hidden="true" tabindex="-1"></a>df_vect <span class="op">=</span> assembler.transform(df)</span>
+<span id="cb20-40"><a href="#cb20-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-41"><a href="#cb20-41" aria-hidden="true" tabindex="-1"></a><span class="co"># Scale the features</span></span>
+<span id="cb20-42"><a href="#cb20-42" aria-hidden="true" tabindex="-1"></a>scaler <span class="op">=</span> StandardScaler(inputCol<span class="op">=</span><span class="st">"features"</span>, outputCol<span class="op">=</span><span class="st">"scaledFeatures"</span>)</span>
+<span id="cb20-43"><a href="#cb20-43" aria-hidden="true" tabindex="-1"></a>df_scaled <span class="op">=</span> scaler.fit(df_vect).transform(df_vect)</span>
+<span id="cb20-44"><a href="#cb20-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-45"><a href="#cb20-45" aria-hidden="true" tabindex="-1"></a><span class="co"># Determine optimal number of clusters (Elbow Method)</span></span>
+<span id="cb20-46"><a href="#cb20-46" aria-hidden="true" tabindex="-1"></a>cost <span class="op">=</span> []</span>
+<span id="cb20-47"><a href="#cb20-47" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">2</span>, <span class="dv">10</span>):</span>
+<span id="cb20-48"><a href="#cb20-48" aria-hidden="true" tabindex="-1"></a>    kmeans <span class="op">=</span> KMeans().setK(k).setSeed(<span class="dv">1</span>).setFeaturesCol(<span class="st">"scaledFeatures"</span>)</span>
+<span id="cb20-49"><a href="#cb20-49" aria-hidden="true" tabindex="-1"></a>    model <span class="op">=</span> kmeans.fit(df_scaled)</span>
+<span id="cb20-50"><a href="#cb20-50" aria-hidden="true" tabindex="-1"></a>    predictions <span class="op">=</span> model.transform(df_scaled)</span>
+<span id="cb20-51"><a href="#cb20-51" aria-hidden="true" tabindex="-1"></a>    evaluator <span class="op">=</span> ClusteringEvaluator()</span>
+<span id="cb20-52"><a href="#cb20-52" aria-hidden="true" tabindex="-1"></a>    silhouette <span class="op">=</span> evaluator.evaluate(predictions)</span>
+<span id="cb20-53"><a href="#cb20-53" aria-hidden="true" tabindex="-1"></a>    cost.append(silhouette)</span>
+<span id="cb20-54"><a href="#cb20-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-55"><a href="#cb20-55" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the Elbow Plot</span></span>
+<span id="cb20-56"><a href="#cb20-56" aria-hidden="true" tabindex="-1"></a>plt.plot(<span class="bu">range</span>(<span class="dv">2</span>, <span class="dv">10</span>), cost)</span>
+<span id="cb20-57"><a href="#cb20-57" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Number of Clusters'</span>)</span>
+<span id="cb20-58"><a href="#cb20-58" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Silhouette Score'</span>)</span>
+<span id="cb20-59"><a href="#cb20-59" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Elbow Method'</span>)</span>
+<span id="cb20-60"><a href="#cb20-60" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>23/11/29 11:39:57 WARN SparkSession: Using an existing Spark session; only runtime SQL configurations will take effect.</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="index_files/figure-html/cell-17-output-2.png" width="600" height="449"></p>
+</div>
+</div>
+<p><strong>Understanding the Elbow Method Visualization</strong> The Elbow Method plot is a graphical representation used to determine the optimal number of clusters (k) for KMeans clustering. In your analysis, this plot is particularly important for understanding how the within-cluster Sum of Squared Distances (SSD) varies with different numbers of clusters. Here’s what the plot is showing and its implications:</p>
+<p>X-axis (Number of Clusters):</p>
+<p>The x-axis represents different numbers of clusters (k). In your case, it ranges from 2 to 9. Each point on the x-axis corresponds to a KMeans model with a different number of clusters. Y-axis (Silhouette Score):</p>
+<p>The y-axis shows the silhouette score for each k. The silhouette score is a measure of how similar an object is to its own cluster (cohesion) compared to other clusters (separation). A higher silhouette score indicates better-defined clusters. The ‘Elbow’:</p>
+<p>The key part of this plot is identifying the ‘elbow’, the point after which the silhouette score starts to decrease at a slower rate. This point suggests that adding more clusters beyond this number does not provide significantly better modeling of the data.</p>
+<p>Based on the steepest drop we will choose 4 as the optimal number of clusters to use for the customers in the dataset.</p>
+<div class="cell" data-execution_count="17">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>optimal_k <span class="op">=</span> <span class="dv">4</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>final_kmeans <span class="op">=</span> KMeans().setK(optimal_k).setSeed(<span class="dv">1</span>).setFeaturesCol(<span class="st">"scaledFeatures"</span>)</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>final_model <span class="op">=</span> final_kmeans.fit(df_scaled)</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>predictions <span class="op">=</span> final_model.transform(df_scaled)</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql <span class="im">import</span> functions <span class="im">as</span> F</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="co"># List to hold all aggregation expressions</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>aggregations <span class="op">=</span> []</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Create aggregation expressions for each numerical column</span></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> col <span class="kw">in</span> numerical_columns:</span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>    aggregations.append(F.mean(col).alias(col <span class="op">+</span> <span class="st">'_mean'</span>))</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>    aggregations.append(F.stddev(col).alias(col <span class="op">+</span> <span class="st">'_stddev'</span>))</span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform all aggregations in a single operation</span></span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>cluster_summary <span class="op">=</span> predictions.groupBy(<span class="st">'prediction'</span>).agg(<span class="op">*</span>aggregations)</span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>cluster_summary.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>+----------+------------------+------------------+------------------+-----------------+------------------+------------------+-----------------+--------------------+--------------------+--------------------+-------------------+-------------------+-------------------+---------------------+------------------+--------------------+------------------+-------------------+-----------------+------------------+
+|prediction|          age_mean|        age_stddev|     duration_mean|  duration_stddev|     campaign_mean|   campaign_stddev|       pdays_mean|        pdays_stddev|       previous_mean|     previous_stddev|  emp_var_rate_mean|emp_var_rate_stddev|cons_price_idx_mean|cons_price_idx_stddev|cons_conf_idx_mean|cons_conf_idx_stddev|    euribor3m_mean|   euribor3m_stddev| nr_employed_mean|nr_employed_stddev|
++----------+------------------+------------------+------------------+-----------------+------------------+------------------+-----------------+--------------------+--------------------+--------------------+-------------------+-------------------+-------------------+---------------------+------------------+--------------------+------------------+-------------------+-----------------+------------------+
+|         1|38.936794696624666| 8.953190394924995|251.14255351449825|261.6992300629177| 2.816304842872324|3.1867100241975486|            999.0|                 0.0|9.108850766661606E-4|0.030167887239193964| 1.1277971762566505| 0.4873252313677719|  93.83676524464451|  0.38697717569978385|-39.45051869844162|  3.0088087375903494| 4.824621881484502| 0.2723234526984423|5214.005257829956|17.448951112444558|
+|         3|43.630465246636774| 9.024785126582945|249.17853139013454|250.5748962558663|2.8639293721973096|3.1841600653406825|            999.0|                 0.0| 0.00616591928251121| 0.07828639455709889| 1.2178391255603456|0.34106455200703417|  93.93091535875114|   0.3526934584961859|-39.20769338565335|  3.0005897022177326| 4.875618553811531|0.18815363479827701|5213.644969170943|17.866429742890933|
+|         2| 39.28941338221815|12.181644121861783|276.41441338221813|271.2266053342416| 2.153987167736022|1.7254238156121138|            999.0|4.45471555619204E-14|                 0.0|                 0.0|-2.0133593033913977| 0.5926889571941567|  92.97685231438632|   0.4306011199104474|-43.20586617781785|    6.05485447454213|1.2476444775435356|0.41228980905693924| 5080.51684234652| 39.60893130924975|
+|         0|  40.4127269458925|12.658121648852019|266.89412187668523|240.1117221075493| 1.952903109832824|1.4438838395213653|728.5752291928816|   442.0830544734829|  1.2694589250404458|  0.6420874958110819| -1.803271616034541| 0.8633765089173636|  93.13197321589146|   0.5786907595144183|-41.65962610102253|   6.204279763409172|1.4618943016358277| 1.0163049771192338|5076.145191443461| 63.79267609208709|
++----------+------------------+------------------+------------------+-----------------+------------------+------------------+-----------------+--------------------+--------------------+--------------------+-------------------+-------------------+-------------------+---------------------+------------------+--------------------+------------------+-------------------+-----------------+------------------+
+</code></pre>
+</div>
+</div>
+<p>Cluster Analysis:</p>
+<p><strong>Cluster 1:</strong></p>
+<p>Age: The average age in this cluster is around 39 years, with a standard deviation of about 9 years, indicating a middle-aged group with some variability in age. Duration: The average duration (presumably of calls or interactions) is about 251 units, with a high standard deviation, indicating varied interaction lengths. Campaign: On average, individuals in this cluster were contacted about 2.8 times during the campaign. A higher standard deviation suggests some individuals were contacted more frequently than others. Pdays: A value of 999 typically indicates that the client wasn’t previously contacted. The standard deviation of 0 supports this. Previous: Very low mean and standard deviation, indicating minimal previous contacts. Employment Variation Rate, Consumer Price Index, Consumer Confidence Index, Euribor 3 Month Rate, and Number of Employees: These seem to be economic indicators. Their interpretation depends on the specific nature of these indicators in your dataset.</p>
+<p><strong>Cluster 2:</strong></p>
+<p>Age: The average age in Cluster 2 is higher compared to Cluster 1, suggesting this group might consist of older individuals. The standard deviation indicates variability, but the overall trend suggests a more mature segment. Duration: The average duration of interactions is slightly longer than in Cluster 1. This could imply more extended or in-depth engagements, possibly indicating a different type of interaction or a more engaged customer base. Campaign Contacts: Similar to Cluster 1, but with slightly more frequent contact. This could indicate more intensive marketing or follow-up efforts for this group. Economic Indicators: Similar to Cluster 1 with a positive employment variation rate and higher Euribor 3 month rate, possibly indicating similar economic conditions or time periods as Cluster 1. Previous Contacts: The mean and standard deviation for ‘previous’ contacts might be slightly higher than Cluster 1, suggesting some previous interactions with these individuals.</p>
+<p><strong>Cluster 3:</strong></p>
+<p>Age: The average age in Cluster 3 falls in a range similar to Clusters 1 and 2, with a relatively high standard deviation, indicating a diverse age group. Duration and Campaign Contacts: The average duration and number of campaign contacts are lower compared to Clusters 1 and 2, possibly indicating less engagement or fewer opportunities for interaction. Negative Employment Variation Rate: This is a key differentiator for Cluster 3. A negative rate could indicate economic downturns or periods of less economic stability during which these data were collected. Lower Euribor 3 Month Rate: Along with the negative employment variation rate, this suggests significantly different economic conditions for this cluster, possibly during a different time period with lower interest rates. Previous Contacts: As with the other clusters, previous contact frequency is low, but the specific context of these contacts might differ given the different economic indicators.</p>
+<p><strong>Cluster 4:</strong></p>
+<p>Age: The average age in Cluster 4 could be similar to the other clusters, but the standard deviation might suggest a broader age range. Lower ‘Pdays’ Mean: The most notable feature of Cluster 4 is the much lower mean for ‘pdays’, indicating more recent contacts with these individuals. This could suggest a more active or current customer segment. Variation in ‘Pdays’: The high standard deviation for ‘pdays’ in this cluster implies a wide range of days since the last contact, suggesting a mix of new and possibly returning clients. Economic Indicators: Similar to other clusters in terms of employment variation rate and Euribor 3 month rate, indicating economic conditions similar to Clusters 1 and 2. Campaign and Previous Contacts: The frequency and nature of campaign and previous contacts would need to be interpreted in light of the lower ‘pdays’, possibly indicating different types of interactions or objectives for these contacts.</p>
+<p><strong>Insights:</strong> Customer Segmentation: Each cluster represents a different segment of customers or clients, characterized by these features.</p>
+<p>Targeting Strategy: Based on the cluster profiles, different strategies can be devised for marketing, customer service, or product offers.</p>
+<p>Temporal or Economic Patterns: Differences in economic indicators across clusters might indicate different time periods or economic conditions under which the interactions took place.</p>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+<script src="index_files/libs/quarto-html/zenscroll-min.js"></script>
+</body></html>
