@@ -85,8 +85,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#data-cleaning-preprocessing" id="toc-data-cleaning-preprocessing" class="nav-link" data-scroll-target="#data-cleaning-preprocessing">Data Cleaning &amp; Preprocessing</a></li>
   <li><a href="#model-training-and-selection" id="toc-model-training-and-selection" class="nav-link" data-scroll-target="#model-training-and-selection">Model Training and Selection</a></li>
   <li><a href="#results-and-evaluation" id="toc-results-and-evaluation" class="nav-link" data-scroll-target="#results-and-evaluation">Results and Evaluation</a></li>
-  <li><a href="#conclusions-and-recommendations" id="toc-conclusions-and-recommendations" class="nav-link" data-scroll-target="#conclusions-and-recommendations">Conclusions and Recommendations</a></li>
-  <li><a href="#optional-k-means-clustering" id="toc-optional-k-means-clustering" class="nav-link" data-scroll-target="#optional-k-means-clustering">Optional K-means Clustering</a></li>
+  <li><a href="#conclusions-and-recommendations" id="toc-conclusions-and-recommendations" class="nav-link" data-scroll-target="#conclusions-and-recommendations">Conclusions and Recommendations</a>
+  <ul class="collapse">
+  <li><a href="#k-means-clustering" id="toc-k-means-clustering" class="nav-link" data-scroll-target="#k-means-clustering">K-means Clustering</a>
+  <ul class="collapse">
+  <li><a href="#cluster-analysis" id="toc-cluster-analysis" class="nav-link" data-scroll-target="#cluster-analysis">Cluster Analysis:</a></li>
+  <li><a href="#insights" id="toc-insights" class="nav-link" data-scroll-target="#insights">Insights:</a></li>
+  </ul></li>
+  </ul></li>
   </ul>
 </nav>
 </div>
@@ -205,7 +211,7 @@ Cardinality: {'job': 12, 'marital': 4, 'education': 8, 'default': 3, 'housing': 
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>df.describe().show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stderr">
-<pre><code>23/11/29 11:39:25 WARN SparkStringUtils: Truncated the string representation of a plan since it was too large. This behavior can be adjusted by setting 'spark.sql.debug.maxToStringFields'.
+<pre><code>23/11/29 19:05:23 WARN SparkStringUtils: Truncated the string representation of a plan since it was too large. This behavior can be adjusted by setting 'spark.sql.debug.maxToStringFields'.
 [Stage 132:&gt;                                                        (0 + 2) / 2][Stage 132:============================&gt;                            (1 + 1) / 2]                                                                                </code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
@@ -295,7 +301,7 @@ Cardinality: {'job': 12, 'marital': 4, 'education': 8, 'default': 3, 'housing': 
 <span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stderr">
-<pre><code>23/11/29 11:39:29 WARN GarbageCollectionMetrics: To enable non-built-in garbage collector(s) List(G1 Concurrent GC), users should configure it(them) to spark.eventLog.gcMetrics.youngGenerationGarbageCollectors or spark.eventLog.gcMetrics.oldGenerationGarbageCollectors</code></pre>
+<pre><code>23/11/29 19:05:28 WARN GarbageCollectionMetrics: To enable non-built-in garbage collector(s) List(G1 Concurrent GC), users should configure it(them) to spark.eventLog.gcMetrics.youngGenerationGarbageCollectors or spark.eventLog.gcMetrics.oldGenerationGarbageCollectors</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <p><img src="index_files/figure-html/cell-9-output-2.png" width="950" height="1141"></p>
@@ -458,8 +464,8 @@ Columns to drop: ['nr_employed', 'euribor3m']</code></pre>
 <span id="cb16-54"><a href="#cb16-54" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Champion Model: </span><span class="sc">{</span>champion_model_name<span class="sc">}</span><span class="ss"> with AUC: </span><span class="sc">{</span>champion_model_auc<span class="sc">}</span><span class="ss"> "</span>)    </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stderr">
-<pre><code>[Stage 473:============================&gt;                            (1 + 1) / 2]                                                                                23/11/29 11:39:37 WARN InstanceBuilder: Failed to load implementation from:dev.ludovic.netlib.blas.JNIBLAS
-23/11/29 11:39:37 WARN InstanceBuilder: Failed to load implementation from:dev.ludovic.netlib.blas.VectorBLAS
+<pre><code>[Stage 473:&gt;                                                        (0 + 2) / 2][Stage 473:============================&gt;                            (1 + 1) / 2]                                                                                23/11/29 19:05:42 WARN InstanceBuilder: Failed to load implementation from:dev.ludovic.netlib.blas.JNIBLAS
+23/11/29 19:05:42 WARN InstanceBuilder: Failed to load implementation from:dev.ludovic.netlib.blas.VectorBLAS
 [Stage 592:&gt;                                                        (0 + 1) / 1]                                                                                </code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
@@ -469,25 +475,25 @@ Confusion Matrix for LogisticRegression:
  [  763.   602.]]
 
 
-AUC of the RandomForestClassifier is 0.928
+AUC of the RandomForestClassifier is 0.929
 Confusion Matrix for RandomForestClassifier:
-[[10839.    63.]
- [ 1139.   226.]]
+[[10823.    79.]
+ [ 1120.   245.]]
 
 
-AUC of the GBTClassifier is 0.945
+AUC of the GBTClassifier is 0.944
 Confusion Matrix for GBTClassifier:
-[[10535.   367.]
- [  656.   709.]]
+[[10495.   407.]
+ [  652.   713.]]
 
 
 AUC of the DecisionTreeClassifier is 0.180
 Confusion Matrix for DecisionTreeClassifier:
-[[10568.   334.]
- [  757.   608.]]
+[[10598.   304.]
+ [  804.   561.]]
 
 
-Champion Model: GBTClassifier with AUC: 0.945428872478955 </code></pre>
+Champion Model: GBTClassifier with AUC: 0.9439523816243683 </code></pre>
 </div>
 </div>
 <p>Insight: The selection of the final model was based on a balance between accuracy and computational efficiency, with the Gradient Boosted Trees model showing the most promise. Finally, we save this model as our best model.</p>
@@ -527,13 +533,9 @@ Champion Model: GBTClassifier with AUC: 0.945428872478955 </code></pre>
 <p>The GBT model is recommended for this task due to its superior overall performance in terms of AUC, accuracy, and F1 score. Its ability to balance precision and recall makes it well-suited for practical applications.</p>
 <p>The significant difference in performance between the models suggests that the choice of model and hyperparameter tuning play crucial roles in achieving high predictive accuracy.</p>
 <p>Future work could explore further tuning of the GBT model, investigating feature engineering opportunities, and testing the models on a more diverse or larger dataset to validate their robustness and generalizability.</p>
-</section>
-<section id="optional-k-means-clustering" class="level1">
-<h1>Optional K-means Clustering</h1>
-<p>In addition to the classification model, we explored customer segmentation using K-means clustering:</p>
-<ul>
-<li>This revealed distinct customer groups with varying likelihoods of subscription.</li>
-</ul>
+<section id="k-means-clustering" class="level2">
+<h2 class="anchored" data-anchor-id="k-means-clustering">K-means Clustering</h2>
+<p>In addition to the classification model, we explored customer segmentation using K-means clustering. Clustering helps in making targeted recommendations by revealing distinct customer groups with varying likelihoods of subscription. We perform clustering analysis using the ClusteringEvaluator module of PySpark.</p>
 <div class="cell" data-execution_count="16">
 <details>
 <summary>Code</summary>
@@ -599,7 +601,7 @@ Champion Model: GBTClassifier with AUC: 0.945428872478955 </code></pre>
 <span id="cb20-60"><a href="#cb20-60" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stderr">
-<pre><code>23/11/29 11:39:57 WARN SparkSession: Using an existing Spark session; only runtime SQL configurations will take effect.</code></pre>
+<pre><code>23/11/29 19:06:08 WARN SparkSession: Using an existing Spark session; only runtime SQL configurations will take effect.</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <p><img src="index_files/figure-html/cell-17-output-2.png" width="600" height="449"></p>
@@ -641,7 +643,8 @@ Champion Model: GBTClassifier with AUC: 0.945428872478955 </code></pre>
 </code></pre>
 </div>
 </div>
-<p>Cluster Analysis:</p>
+<section id="cluster-analysis" class="level3">
+<h3 class="anchored" data-anchor-id="cluster-analysis">Cluster Analysis:</h3>
 <p><strong>Cluster 1:</strong></p>
 <p>Age: The average age in this cluster is around 39 years, with a standard deviation of about 9 years, indicating a middle-aged group with some variability in age. Duration: The average duration (presumably of calls or interactions) is about 251 units, with a high standard deviation, indicating varied interaction lengths. Campaign: On average, individuals in this cluster were contacted about 2.8 times during the campaign. A higher standard deviation suggests some individuals were contacted more frequently than others. Pdays: A value of 999 typically indicates that the client wasn’t previously contacted. The standard deviation of 0 supports this. Previous: Very low mean and standard deviation, indicating minimal previous contacts. Employment Variation Rate, Consumer Price Index, Consumer Confidence Index, Euribor 3 Month Rate, and Number of Employees: These seem to be economic indicators. Their interpretation depends on the specific nature of these indicators in your dataset.</p>
 <p><strong>Cluster 2:</strong></p>
@@ -650,9 +653,14 @@ Champion Model: GBTClassifier with AUC: 0.945428872478955 </code></pre>
 <p>Age: The average age in Cluster 3 falls in a range similar to Clusters 1 and 2, with a relatively high standard deviation, indicating a diverse age group. Duration and Campaign Contacts: The average duration and number of campaign contacts are lower compared to Clusters 1 and 2, possibly indicating less engagement or fewer opportunities for interaction. Negative Employment Variation Rate: This is a key differentiator for Cluster 3. A negative rate could indicate economic downturns or periods of less economic stability during which these data were collected. Lower Euribor 3 Month Rate: Along with the negative employment variation rate, this suggests significantly different economic conditions for this cluster, possibly during a different time period with lower interest rates. Previous Contacts: As with the other clusters, previous contact frequency is low, but the specific context of these contacts might differ given the different economic indicators.</p>
 <p><strong>Cluster 4:</strong></p>
 <p>Age: The average age in Cluster 4 could be similar to the other clusters, but the standard deviation might suggest a broader age range. Lower ‘Pdays’ Mean: The most notable feature of Cluster 4 is the much lower mean for ‘pdays’, indicating more recent contacts with these individuals. This could suggest a more active or current customer segment. Variation in ‘Pdays’: The high standard deviation for ‘pdays’ in this cluster implies a wide range of days since the last contact, suggesting a mix of new and possibly returning clients. Economic Indicators: Similar to other clusters in terms of employment variation rate and Euribor 3 month rate, indicating economic conditions similar to Clusters 1 and 2. Campaign and Previous Contacts: The frequency and nature of campaign and previous contacts would need to be interpreted in light of the lower ‘pdays’, possibly indicating different types of interactions or objectives for these contacts.</p>
-<p><strong>Insights:</strong> Customer Segmentation: Each cluster represents a different segment of customers or clients, characterized by these features.</p>
+</section>
+<section id="insights" class="level3">
+<h3 class="anchored" data-anchor-id="insights">Insights:</h3>
+<p>Customer Segmentation: Each cluster represents a different segment of customers or clients, characterized by these features.</p>
 <p>Targeting Strategy: Based on the cluster profiles, different strategies can be devised for marketing, customer service, or product offers.</p>
 <p>Temporal or Economic Patterns: Differences in economic indicators across clusters might indicate different time periods or economic conditions under which the interactions took place.</p>
+</section>
+</section>
 </section>
 
 </main>
